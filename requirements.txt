@@ -1,0 +1,8 @@
+requests
+python-dotenv
+flask
+flask-cors
+torch
+transformers
+sentence-transformers
+scikit-learn

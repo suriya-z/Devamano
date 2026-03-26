@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot | Generative Content Validation Platform</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="atmosphere">
+        <div class="glow-1"></div>
+        <div class="glow-2"></div>
+    </div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <div class="brand-row">
+                <div class="brand-icon">A</div>
+                <div class="brand-name">Chatbot</div>
+            </div>
+            <button id="toggleSidebar" class="toggle-btn" title="Close Sidebar">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="config-section">
+            <div class="field-group">
+                <label class="field-label">Type</label>
+                <div style="display: flex; gap: 20px; margin-top: 10px; color: #e2e8f0; font-size: 0.9em;">
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <input type="radio" name="mode" value="text" checked style="accent-color: #6366f1;"> Text
+                    </label>
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <input type="radio" name="mode" value="code" style="accent-color: #6366f1;"> Source Code
+                    </label>
+                </div>
+            </div>
+
+            <!-- Goal, Level, and Language groups removed per user request -->
+
+            <div class="field-group" id="language-group" style="display: none;">
+                <label class="field-label">Language</label>
+                <select id="language" class="select-control">
+                    <option value="Python">Python</option>
+                    <option value="JavaScript">JavaScript</option>
+                    <option value="C">C</option>
+                    <option value="C++">C++</option>
+                    <option value="Java">Java</option>
+                    <option value="Go">Go</option>
+                </select>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label">Subject</label>
+                <input type="text" id="topic" class="input-control" placeholder="What should I write about?">
+            </div>
+
+            <button id="generateBtn" class="btn-primary">
+                <span>CREATE</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <polyline points="19 12 12 19 5 12"></polyline>
+                </svg>
+            </button>
+        </div>
+    </aside>
+
+    <button id="openSidebar" class="open-btn" style="display: none;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </button>
+
+    <main class="viewport">
+        <header class="dashboard-header">
+            <h1 class="dash-title">Generative Content Validation Platform</h1>
+            <p class="dash-subtitle">Real time writing with accuracy prediction</p>
+        </header>
+
+        <!-- Loading State container -->
+        <section id="loading-container" style="display:none;" class="loading-state">
+            <div class="spinner"></div>
+            <p id="loading-text">Crawling Reference Sources...</p>
+        </section>
+
+        <!-- Two-Column Report Output -->
+        <section class="report-two-column" id="report-container" style="display:none;">
+            <!-- Left Column: Source Data -->
+            <div class="report-col-left">
+                <div class="report-section">
+                    <div class="report-section-title">🌐 EXTERNAL SOURCES CONSIDERED</div>
+                    <div id="ext-sources" class="report-list"></div>
+                </div>
+
+                <div class="report-section">
+                    <div class="report-section-title">📚 EXTERNAL CONTENT</div>
+                    <div id="knowledge-base" class="report-text"></div>
+                </div>
+            </div>
+
+            <!-- Right Column: Generation & Metrics -->
+            <div class="report-col-right">
+                <div class="report-section">
+                    <div class="report-section-title">🤖 GENERATED CONTENT</div>
+                    <div id="generated-content" class="report-text highlight-box"></div>
+                    <div style="margin-top: 10px;">
+                        <button id="copyBtn" class="copy-btn">📋 <span id="copyLabel">Copy Output</span></button>
+                    </div>
+                </div>
+
+                <div class="report-section">
+                    <div class="report-section-title">📊 EVALUATION METRICS</div>
+                    <div class="metrics-grid">
+                        <div class="metric-row"><span>Semantic Alignment (Relevance)</span><span>: <span id="metric-rel"></span></span></div>
+                        <div class="metric-row"><span>Semantic Similarity Score</span><span>: <span id="metric-sim"></span></span></div>
+                        <div class="metric-row"><span>Logical Coherence Score</span><span>: <span id="metric-coh"></span></span></div>
+                        <div class="metric-row"><span>NLI Entailment Score</span><span>: <span id="metric-nli"></span></span></div>
+                        <div class="metric-row"><span>Technical Term Retention</span><span>: <span id="metric-tech"></span></span></div>
+                        <div class="metric-row"><span>Content Compression Score</span><span>: <span id="metric-comp"></span></span></div>
+                        <div class="metric-row"><span id="domain-trust-label" style="font-weight: 600;">Source Trust Score</span><span style="font-weight: bold; color: var(--clr-primary);">: <span id="domain-trust-score">--</span></span></div>
+                    </div>
+
+                    <details class="unified-tiers" style="margin-top: 15px; border: 1px solid #cbd5e1; border-radius: 6px; background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                        <summary style="display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; font-weight: 600; color: #334155; cursor: pointer; list-style: none; outline: none;">
+                            <div style="display: flex; gap: 30px;">
+                                <span>Tier 1: <span id="t1-cnt" style="color: #3b82f6; font-weight: bold;">0</span></span>
+                                <span>Tier 2: <span id="t2-cnt" style="color: #3b82f6; font-weight: bold;">0</span></span>
+                                <span>Tier 3: <span id="t3-cnt" style="color: #3b82f6; font-weight: bold;">0</span></span>
+                            </div>
+                            <span style="color: #64748b; font-size: 0.8em;">▼</span>
+                        </summary>
+                        <div style="padding: 15px; border-top: 1px solid #e2e8f0; background: #f8fafc; font-size: 0.85em; color: #64748b; line-height: 1.6; border-bottom-left-radius: 6px; border-bottom-right-radius: 6px; display: flex; flex-direction: column; gap: 10px;">
+                            <div><strong>Tier 1:</strong> Top-level authoritative sources. This includes verified academic institution platforms (.edu), strict scientific journals, and globally recognized encyclopedias. These pristine links carry an absolute 100% trust weight inside the engine.</div>
+                            <div><strong>Tier 2:</strong> Highly reliable secondary sources. This includes major international journalism publishers (Reuters, BBC), global open-source code repositories (GitHub), and established encyclopedic organizations. These reputable links natively carry an 80% trust scalar.</div>
+                            <div><strong>Tier 3:</strong> Commercial media and corporate blogs. This includes startup tech tutorials, localized news networks, and standard independent journalism. These links structurally carry a 50% trust reduction to automatically prevent generalized media hallucination bias.</div>
+                        </div>
+                    </details>
+                    
+                </div>
+
+                <div class="report-section final-assessment">
+                    <div class="report-section-title">🏁 FINAL ASSESSMENT</div>
+                    <div class="metrics-grid">
+                        <div class="metric-row"><span>Accuracy Percentage</span><span>: <span id="metric-acc"></span>%</span></div>
+                        <div class="metric-row"><span>Evaluation Level</span><span>: <span id="metric-eval"></span></span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
