@@ -72,7 +72,7 @@ def fetch_content_p(url, mode="text"):
             final_text = " ".join(cleaned)[:10000]
         
         # Access Denied Heuristics (Sometimes returns 200 OK but shows an error overlay)
-        error_keywords = ["access denied", "you do not have permission", "enable javascript", "please enable cookies", "security check", "cloudflare", "attention required"]
+        error_keywords = ["access denied", "you do not have permission", "enable javascript", "please enable cookies", "security check", "cloudflare", "attention required", "proxy wall", "captcha", "verify you are human"]
         if any(keyword in final_text.lower() for keyword in error_keywords):
             return ""
             
