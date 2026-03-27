@@ -18,14 +18,24 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 SEARCH_ENGINE_ID = os.getenv("SEARCH_ENGINE_ID")
 
 # Try loading BART summarizer natively
-try:
-    from transformers import pipeline
-    print("Loading Summarizer (facebook/bart-large-cnn)...")
-    summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
-    SUMMARIZER_LOADED = True
-except Exception as e:
-    print(f"CRITICAL ERROR loading Summarizer: {e}")
-    SUMMARIZER_LOADED = False
+summarizer = None
+SUMMARIZER_LOADED = False
+summarizer_initialized = False
+
+def initialize_summarizer():
+    global summarizer, SUMMARIZER_LOADED, summarizer_initialized
+    if summarizer_initialized:
+        return
+    try:
+        from transformers import pipeline
+        print("Loading Summarizer (facebook/bart-large-cnn)...")
+        summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+        SUMMARIZER_LOADED = True
+    except Exception as e:
+        print(f"CRITICAL ERROR loading Summarizer: {e}")
+        SUMMARIZER_LOADED = False
+    finally:
+        summarizer_initialized = True
 
 def clean_text(text):
     text = re.sub(r'\s+', ' ', text)
@@ -95,6 +105,7 @@ def remove_repetition(text):
     return '. '.join(unique) + '.'
 
 def summarize_text(text):
+    initialize_summarizer()
     if not SUMMARIZER_LOADED:
         return text[:1000] # Fallback if BART failed to load due to OS crash
     

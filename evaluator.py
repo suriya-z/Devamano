@@ -1,25 +1,38 @@
 import re
 import traceback
 
-try:
-    import torch
-    from sentence_transformers import SentenceTransformer, util
-    from transformers import AutoTokenizer, AutoModel, pipeline
+text_evaluator = None
+code_tokenizer = None
+code_model = None
+nli_model = None
+MODELS_LOADED = False
+models_initialized = False
 
-    print("Loading SentenceBERT (all-MiniLM-L6-v2) for Text mode...")
-    text_evaluator = SentenceTransformer('all-MiniLM-L6-v2')
+def initialize_models():
+    global text_evaluator, code_tokenizer, code_model, nli_model, MODELS_LOADED, models_initialized
+    if models_initialized:
+        return
+    try:
+        import torch
+        from sentence_transformers import SentenceTransformer, util
+        from transformers import AutoTokenizer, AutoModel, pipeline
 
-    print("Loading CodeBERT (microsoft/codebert-base) for Code mode...")
-    code_tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
-    code_model = AutoModel.from_pretrained("microsoft/codebert-base")
+        print("Loading SentenceBERT (all-MiniLM-L6-v2) for Text mode...")
+        text_evaluator = SentenceTransformer('all-MiniLM-L6-v2')
 
-    print("Loading NLI Evaluator (facebook/bart-large-mnli)...")
-    nli_model = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
+        print("Loading CodeBERT (microsoft/codebert-base) for Code mode...")
+        code_tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
+        code_model = AutoModel.from_pretrained("microsoft/codebert-base")
 
-    MODELS_LOADED = True
-except Exception as e:
-    print(f"CRITICAL ERROR loading HuggingFace models: {e}")
-    MODELS_LOADED = False
+        print("Loading NLI Evaluator (facebook/bart-large-mnli)...")
+        nli_model = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
+
+        MODELS_LOADED = True
+    except Exception as e:
+        print(f"CRITICAL ERROR loading HuggingFace models: {e}")
+        MODELS_LOADED = False
+    finally:
+        models_initialized = True
 
 
 def get_codebert_embedding(text):
@@ -30,6 +43,7 @@ def get_codebert_embedding(text):
 
 
 def evaluate_content(text: str, context: str, prompt: str, mode: str = "text", domain_weight: float = 1.0):
+    initialize_models()
     if not MODELS_LOADED:
         return {
             "accuracy_score": 0, "accuracy_percentage": 0,

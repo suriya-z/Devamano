@@ -6,3 +6,6 @@ torch
 transformers
 sentence-transformers
 scikit-learn
+gunicorn
+validators
+beautifulsoup4
